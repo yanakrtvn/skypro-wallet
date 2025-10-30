@@ -15,6 +15,10 @@ export const TableHeader = styled.th`
   vertical-align: middle;
   font-family: 'Montserrat', sans-serif;
   color: #999999;
+  
+  &:last-child {
+    text-align: right;
+  }
 `;
 
 export const TableRow = styled.tr`
@@ -22,17 +26,21 @@ export const TableRow = styled.tr`
     background: #ffffff;
   }
   &:hover {
-    background: #e6f3e6;
+    background: rgba(241, 235, 253, 1);
   }
   transition: background 0.3s ease;
 `;
 
 export const TableCell = styled.td`
-  padding: 12px;
+  padding: 4px;
   font-size: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: none;
   color: #000000;
   font-family: 'Montserrat', sans-serif;
+  
+  &:last-child {
+    text-align: right;
+  }
 `;
 
 export const ActionButton = styled.button`

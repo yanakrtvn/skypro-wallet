@@ -1,6 +1,7 @@
 import React from 'react';
 import Input from "../../Input/Input";
 import Button from "../../common/Button/Button";
+import { LogoIcon } from "../../common/icons/Icons";
 import {
   AuthButtonContainer,
   AuthFormGroup,
@@ -9,22 +10,15 @@ import {
   AuthFormModalBlock,
   AuthFormModalTtl,
   SAuthForm,
+  AuthHeader
 } from "./AuthForm.styled";
 
 const AuthForm = ({ isSignUp }) => {
   return (
     <>
-      <div
-        style={{
-          width: "100%",
-          height: "64px",
-          backgroundColor: "#FFFFFF",
-          display: "flex",
-          alignItems: "center ",
-        }}
-      >
-        <img src="../../../public/logo.svg" style={{ marginLeft: "120px" }} />
-      </div>
+      <AuthHeader>
+        <LogoIcon />
+      </AuthHeader>
       <SAuthForm>
         <AuthFormModal>
           <AuthFormModalBlock>

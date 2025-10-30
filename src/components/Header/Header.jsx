@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { LogoIcon } from '../common/icons/Icons';
 import {
   HeaderWrapper,
   Logo,
@@ -12,7 +13,7 @@ const Header = ({ currentPath }) => {
   return (
     <HeaderWrapper>
       <Logo>
-        <span>Логотип</span>
+        <LogoIcon />
       </Logo>
       <Nav>
         <NavButton 
