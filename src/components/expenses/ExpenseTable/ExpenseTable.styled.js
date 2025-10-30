@@ -51,7 +51,7 @@ export const ActionButton = styled.button`
   font-size: 16px;
   transition: color 0.3s ease;
 
-  &:hover {
+  /* &:hover {
     color: #1FA46C;
-  }
+  } */
 `;

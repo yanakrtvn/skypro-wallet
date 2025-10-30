@@ -7,7 +7,7 @@ export const AnalyticsContainer = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background-color: white;
-  border: 2px solid red;
+  border: 1px solid #e0e0e0; /* Убираем красную рамку */
 `;
 
 export const AnalyticsHeader = styled.div`
@@ -21,8 +21,9 @@ export const AnalyticsAmount = styled.div`
 `;
 
 export const AnalyticsPeriod = styled.div`
-  color: #666;
   font-size: 14px;
+  color: ${({ $hasPeriod }) => $hasPeriod ? 'rgba(217, 182, 255, 1)' : '#666'};
+  font-weight: ${({ $hasPeriod }) => $hasPeriod ? '600' : '400'};
 `;
 
 export const ChartContainer = styled.div`

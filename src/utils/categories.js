@@ -43,10 +43,10 @@ export const getCategoryName = (category) => {
 };
 
 export const CATEGORIES = [
-  { id: 'food', name: 'Еда', emoji: '🍕' },
-  { id: 'transport', name: 'Транспорт', emoji: '🚗' },
-  { id: 'housing', name: 'Жилье', emoji: '🏠' },
-  { id: 'entertainment', name: 'Развлечения', emoji: '🎬' },
-  { id: 'education', name: 'Образование', emoji: '📚' },
-  { id: 'other', name: 'Другое', emoji: '📦' },
+  { id: 'food', name: 'Еда' },
+  { id: 'transport', name: 'Транспорт'},
+  { id: 'housing', name: 'Жилье' },
+  { id: 'entertainment', name: 'Развлечения' },
+  { id: 'education', name: 'Образование' },
+  { id: 'other', name: 'Другое' },
 ];
