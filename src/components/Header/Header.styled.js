@@ -1,12 +1,20 @@
 import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
   height: 64px;
   background-color: rgb(255, 255, 255);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+`;
+
+export const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1140px;
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 `;
 
 export const Logo = styled.div`
@@ -17,9 +25,6 @@ export const Logo = styled.div`
 export const Nav = styled.nav`
   display: flex;
   gap: 50px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
 `;
 
 export const NavButton = styled.a`
