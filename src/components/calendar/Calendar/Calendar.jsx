@@ -3,70 +3,79 @@ import {
   CalendarWrapper,
   CalendarHeader,
   CalendarTitle,
-  ViewToggle,
-  ToggleButton,
   WeekdaysHeader,
   Weekday,
   ScrollContainer
 } from './Calendar.styled.js';
 import MonthView from '../MonthView/MonthView.jsx';
-import YearView from '../YearView/YearView.jsx';
 import { WEEKDAYS_SHORT } from '../constants/calendarConstants.js';
 
 const Calendar = () => {
-  const [viewMode, setViewMode] = useState('month');
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
+
+  const handlePeriodSelect = (period) => {
+    setSelectedPeriod(period);
+  };
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  const getMonthName = (monthNumber, year = currentYear) => {
+    const months = [
+      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    ];
+    
+    let adjustedMonth = monthNumber;
+    let adjustedYear = year;
+    
+    if (monthNumber > 12) {
+      adjustedMonth = monthNumber - 12;
+      adjustedYear = year + 1;
+    } else if (monthNumber < 1) {
+      adjustedMonth = monthNumber + 12;
+      adjustedYear = year - 1;
+    }
+    
+    return `${months[adjustedMonth - 1]} ${adjustedYear}`;
+  };
 
   return (
     <CalendarWrapper>
       <CalendarHeader>
         <CalendarTitle>Период</CalendarTitle>
-        <ViewToggle>
-          <ToggleButton 
-            $isActive={viewMode === 'month'} 
-            onClick={() => setViewMode('month')}
-          >
-            Месяц
-          </ToggleButton>
-          <ToggleButton 
-            $isActive={viewMode === 'year'} 
-            onClick={() => setViewMode('year')}
-          >
-            Год
-          </ToggleButton>
-        </ViewToggle>
       </CalendarHeader>
 
-      {viewMode === 'month' ? (
-        <>
-          <WeekdaysHeader>
-            {WEEKDAYS_SHORT.map(day => (
-              <Weekday key={day}>{day}</Weekday>
-            ))}
-          </WeekdaysHeader>
-          
-          <ScrollContainer>
-            <MonthView 
-              month={7} 
-              year={2024} 
-              title="Июль 2024" 
-            />
-            <MonthView 
-              month={8} 
-              year={2024} 
-              title="Август 2024" 
-            />
-            <MonthView 
-              month={9} 
-              year={2024} 
-              title="Сентябрь 2024" 
-            />
-          </ScrollContainer>
-        </>
-      ) : (
-        <YearView 
-          years={[2024, 2025]}
+      <WeekdaysHeader>
+        {WEEKDAYS_SHORT.map(day => (
+          <Weekday key={day}>{day}</Weekday>
+        ))}
+      </WeekdaysHeader>
+      
+      <ScrollContainer>
+        <MonthView 
+          month={currentMonth} 
+          year={currentYear} 
+          title={getMonthName(currentMonth, currentYear)}
+          selectedPeriod={selectedPeriod}
+          onPeriodSelect={handlePeriodSelect}
         />
-      )}
+        <MonthView 
+          month={currentMonth + 1} 
+          year={currentYear} 
+          title={getMonthName(currentMonth + 1, currentYear)}
+          selectedPeriod={selectedPeriod}
+          onPeriodSelect={handlePeriodSelect}
+        />
+        <MonthView 
+          month={currentMonth + 2} 
+          year={currentYear} 
+          title={getMonthName(currentMonth + 2, currentYear)}
+          selectedPeriod={selectedPeriod}
+          onPeriodSelect={handlePeriodSelect}
+        />
+      </ScrollContainer>
     </CalendarWrapper>
   );
 };

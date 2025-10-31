@@ -8,7 +8,7 @@ export const SInput = styled.input`
   padding: 12px;
   outline: none;
   box-sizing: border-box;
-  border: 0.5px solid rgb(153, 153, 153);
+  border: 0.5px solid rgba(153, 153, 153, 1);
   border-radius: 6px;
   color: inherit;
   font-family: Montserrat;

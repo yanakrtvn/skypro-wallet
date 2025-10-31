@@ -1,36 +1,51 @@
 import React from 'react';
-import styled from 'styled-components';
+import { MonthContainer, MonthTitle, DaysGrid, EmptyCell } from './MonthView.styled';
 import { DayCell } from '../Calendar/Calendar.styled';
 
-const MonthContainer = styled.div`
-  margin-bottom: 20px;
-`;
+const MonthView = ({ month, year, title, selectedPeriod, onPeriodSelect }) => {
 
-const MonthTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 10px 0;
-  padding: 0 10px;
-`;
+  const getMonthDays = (month, year) => {
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay(); 
+    
+    const startOffset = startingDay === 0 ? 6 : startingDay - 1;
+    
+    return { daysInMonth, startOffset };
+  };
 
-const DaysGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  padding: 0 10px;
-`;
+  const isDaySelected = (day) => {
+    return selectedPeriod === `${title}-${day}`;
+  };
 
-const MonthView = ({ title }) => {
-  //  реализация для демонстрации
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const { daysInMonth, startOffset } = getMonthDays(month, year);
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  
+  const emptyCells = Array.from({ length: startOffset }, (_, i) => i);
+
+  const handleDayClick = (day) => {
+    const period = `${title}-${day}`;
+    onPeriodSelect(period);
+  };
 
   return (
     <MonthContainer>
       <MonthTitle>{title}</MonthTitle>
       <DaysGrid>
+        {emptyCells.map((_, index) => (
+          <EmptyCell key={`empty-${index}`} />
+        ))}
+        
         {days.map(day => (
-          <DayCell key={day} $isCurrentMonth>
+          <DayCell 
+            key={day} 
+            $isCurrentMonth
+            $isSelected={isDaySelected(day)}
+            onClick={() => handleDayClick(day)}
+          >
             {day}
+            {isDaySelected(day)}
           </DayCell>
         ))}
       </DaysGrid>

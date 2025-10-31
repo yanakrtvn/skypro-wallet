@@ -1,48 +1,41 @@
 import React from 'react';
-import styled from 'styled-components';
+import {
+  YearContainer,
+  YearGrid,
+  MonthCard,
+  MonthName,
+  SelectedIcon
+} from './YearView.styled';
 
-const YearContainer = styled.div`
-  padding: 0 20px;
-`;
-
-const YearGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-`;
-
-const MonthCard = styled.div`
-  padding: 10px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
-  
-  &:hover {
-    background: #f5f5f5;
-  }
-`;
-
-const MonthName = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-`;
-
-const YearView = ({ years }) => {
+const YearView = ({ years, selectedPeriod, onPeriodSelect }) => {
   const months = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
   ];
 
+  const isMonthSelected = (year, monthIndex) => {
+    return selectedPeriod === `${months[monthIndex]} ${year}`;
+  };
+
+  const handleMonthClick = (year, monthIndex) => {
+    const period = `${months[monthIndex]} ${year}`;
+    onPeriodSelect(period);
+  };
+
   return (
     <YearContainer>
       {years.map(year => (
         <div key={year}>
-          <h3 style={{ margin: '15px 0' }}>{year}</h3>
+          <h3 style={{ margin: '15px 0', padding: '0 10px' }}>{year}</h3>
           <YearGrid>
             {months.map((month, index) => (
-              <MonthCard key={index}>
+              <MonthCard 
+                key={index}
+                $isSelected={isMonthSelected(year, index)}
+                onClick={() => handleMonthClick(year, index)}
+              >
                 <MonthName>{month}</MonthName>
+                {isMonthSelected(year, index) && <SelectedIcon>✓</SelectedIcon>}
               </MonthCard>
             ))}
           </YearGrid>

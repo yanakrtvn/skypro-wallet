@@ -7,8 +7,17 @@ export const SAuthForm = styled.div`
   position: absolute;
 `;
 
+export const AuthHeader = styled.div`
+  width: 100%;
+  height: 64px;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding-left: 120px;
+`;
+
 export const AuthFormModal = styled.div`
-  min-height: 100vh;
+  min-height: calc(100vh - 595px);
   display: flex;
   align-items: center;
   justify-content: center;

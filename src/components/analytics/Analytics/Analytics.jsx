@@ -26,12 +26,54 @@ ChartJS.register(
   Legend
 );
 
+const barValuePlugin = {
+  id: 'barValueLabels',
+  afterDraw: (chart) => {
+    const ctx = chart.ctx;
+    ctx.save();
+    
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      
+      meta.data.forEach((bar, index) => {
+        const value = dataset.data[index];
+        const x = bar.x;
+        const y = bar.y;
+        const width = bar.width;
+        
+        if (value === 0) {
+          ctx.fillStyle = dataset.backgroundColor[index];
+          ctx.fillRect(x - width / 2, bar.base - 4, width, 4);
+          ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+          ctx.font = '600 16px Montserrat';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(`${value} ₽`, x, bar.base - 8);
+        } else {
+          ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+          ctx.font = '600 16px Montserrat';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(`${value} ₽`, x, y - 5);
+        }
+      });
+    });
+    
+    ctx.restore();
+  }
+};
+
+ChartJS.register(barValuePlugin);
+
 const Analytics = ({ period }) => {
+  const expenses = [3590, 1835, 0, 1250, 600, 2306];
+  const totalAmount = expenses.reduce((sum, amount) => sum + amount, 0);
+
   const data = {
     labels: ['Еда', 'Транспорт', 'Жилье', 'Развлечения', 'Образование', 'Другое'],
     datasets: [{
       label: 'Расходы',
-      data: [3590, 1835, 50, 1250, 600, 2306],
+      data: expenses,
       backgroundColor: [
         'rgb(217, 182, 255)',
         'rgb(255, 181, 61)',
@@ -61,15 +103,19 @@ const Analytics = ({ period }) => {
         display: false 
       },
       tooltip: {
-        callbacks: {
-          label: (context) => `${context.parsed.y} ₽`,
-        },
+        enabled: false,
       },
     },
     scales: {
       y: {
         display: false,
         beginAtZero: true,
+        grid: {
+          display: false,
+        },
+        min: 0,
+        suggestedMin: 0,
+        suggestedMax: Math.max(...expenses) * 1.1,
       },
       x: {
         grid: {
@@ -77,21 +123,41 @@ const Analytics = ({ period }) => {
         },
         ticks: {
           padding: 0,
+          color: 'rgba(0, 0, 0, 1)',
+          font: {
+            family: 'Montserrat',
+            size: 12,
+            weight: 400,
+            lineHeight: '100%',
+          },
+        },
+        border: {
+          display: false,
         },
       },
     },
     layout: {
-      padding: 0,
+      padding: {
+        top: 30,
+      },
     },
     animation: {
       duration: 1000,
+    },
+    interaction: {
+      mode: null,
+      intersect: false,
+    },
+    events: [],
+    hover: {
+      mode: null,
     },
   };
 
   return (
     <AnalyticsContainer>
       <AnalyticsHeader>
-        <AnalyticsAmount>9 581 ₽</AnalyticsAmount>
+        <AnalyticsAmount>{totalAmount.toLocaleString('ru-RU')} ₽</AnalyticsAmount>
         <AnalyticsPeriod>
           {period ? `Расходы за ${period}` : 'Выберите период в календаре'}
         </AnalyticsPeriod>

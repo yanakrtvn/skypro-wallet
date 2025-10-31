@@ -8,7 +8,7 @@ export const MonthTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 10px 0;
-  padding: 0 10px;
+  padding: 17px 10px;
 `;
 
 export const DaysGrid = styled.div`
@@ -16,4 +16,10 @@ export const DaysGrid = styled.div`
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
   padding: 0 10px;
+`;
+
+export const EmptyCell = styled.div`
+  width: 40px;
+  height: 40px;
+  padding: 10px 15px;
 `;
