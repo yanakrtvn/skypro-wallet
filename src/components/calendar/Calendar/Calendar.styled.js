@@ -98,3 +98,24 @@ export const DayCell = styled.div`
       $isSelected ? 'rgba(241, 235, 253, 1)' : 'rgba(224, 224, 224, 1)'};
   }
 `;
+
+export const PeriodButton = styled.button`
+  padding: 8px 16px;
+  background: rgba(103, 58, 183, 1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: rgba(83, 38, 163, 1);
+  }
+  
+  &:active {
+    background: rgba(63, 18, 143, 1);
+  }
+`;

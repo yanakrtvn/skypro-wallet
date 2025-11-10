@@ -83,3 +83,9 @@ export const AuthFormGroup = styled.div`
     text-decoration: underline;
   }
 `;
+export const ErrorMessage = styled.div`
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+  font-family: 'Montserrat', sans-serif;
+`;

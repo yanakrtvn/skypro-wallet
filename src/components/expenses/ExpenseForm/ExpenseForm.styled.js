@@ -92,3 +92,11 @@ export const FormButton = styled.button`
   margin: 15px 0 0 20px;
   transition: background 0.3s ease;
 `;
+
+export const ErrorMessage = styled.div`
+  color: #ff4d4f;
+  font-size: 12px;
+  margin: -10px 0 15px 20px;
+  font-family: 'Montserrat', sans-serif;
+  min-height: 16px;
+`;

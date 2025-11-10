@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { LogoIcon } from '../common/icons/Icons';
 import {
   HeaderWrapper,
@@ -11,6 +12,18 @@ import {
 } from "./Header.styled";
 
 const Header = ({ currentPath }) => {
+  const { logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/sign-in');
+  };
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <HeaderWrapper>
       <HeaderContainer>
@@ -33,7 +46,7 @@ const Header = ({ currentPath }) => {
             Анализ расходов
           </NavButton>
         </Nav>
-        <LogoutButton>Выйти</LogoutButton>
+        <LogoutButton onClick={handleLogout}>Выйти</LogoutButton>
       </HeaderContainer>
     </HeaderWrapper>
   );

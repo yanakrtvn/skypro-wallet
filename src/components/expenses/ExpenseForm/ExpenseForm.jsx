@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useTransactions } from '../../../hooks/useTransactions';
 import {
   FormTitle,
   FieldLabel,
   FormInput,
   CategoryButton,
   FormButton,
-  CategoriesGrid
+  CategoriesGrid,
+  ErrorMessage
 } from "./ExpenseForm.styled";
 import {
   FoodIcon,
@@ -21,25 +23,55 @@ const ExpenseForm = () => {
   const [formData, setFormData] = useState({
     description: '',
     date: '',
-    amount: ''
+    sum: ''
   });
-  const [isValid, setIsValid] = useState({
-    description: false,
-    date: false,
-    amount: false
-  });
+  const [errors, setErrors] = useState({});
+  const { addTransaction, loading } = useTransactions();
 
   const categories = [
-    { name: 'Еда', icon: <FoodIcon /> },
-    { name: 'Транспорт', icon: <TransportIcon /> },
-    { name: 'Жилье', icon: <HousingIcon /> },
-    { name: 'Развлечения', icon: <EntertainmentIcon /> },
-    { name: 'Образование', icon: <EducationIcon /> },
-    { name: 'Другое', icon: <OtherIcon /> },
-  ];
+  { name: 'food', displayName: 'Еда', icon: <FoodIcon /> },
+  { name: 'transport', displayName: 'Транспорт', icon: <TransportIcon /> },
+  { name: 'housing', displayName: 'Жилье', icon: <HousingIcon /> },
+  { name: 'entertainment', displayName: 'Развлечения', icon: <EntertainmentIcon /> },
+  // { name: 'joy', displayName: 'Развлечения', icon: <EntertainmentIcon /> },
+  { name: 'education', displayName: 'Образование', icon: <EducationIcon /> },
+  { name: 'others', displayName: 'Другое', icon: <OtherIcon /> },
+];
 
-  const handleCategoryClick = (categoryName) => {
-    setSelectedCategory(categoryName === selectedCategory ? null : categoryName);
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    
+    switch (name) {
+      case 'description': {
+        if (value.length < 4) {
+          newErrors.description = 'Описание должно содержать минимум 4 символа';
+        } else {
+          delete newErrors.description;
+        }
+        break;
+      }
+      case 'sum': {
+        const numValue = parseFloat(value);
+        if (isNaN(numValue) || numValue <= 0) {
+          newErrors.sum = 'Сумма должна быть положительным числом';
+        } else {
+          delete newErrors.sum;
+        }
+        break;
+      }
+      case 'date': {
+        if (!value.trim()) {
+          newErrors.date = 'Дата обязательна';
+        } else {
+          delete newErrors.date;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    
+    setErrors(newErrors);
   };
 
   const handleInputChange = (field, value) => {
@@ -47,39 +79,85 @@ const ExpenseForm = () => {
       ...prev,
       [field]: value
     }));
+    validateField(field, value);
+  };
 
-    let valid = false;
-    switch (field) {
-      case 'description':
-        valid = value.trim().length > 0;
-        break;
-      case 'date':
-        valid = value.trim().length > 0;
-        break;
-      case 'amount':
-        valid = !isNaN(value) && parseFloat(value) > 0;
-        break;
-      default:
-        break;
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.description.trim()) {
+      newErrors.description = 'Описание обязательно';
+    } else if (formData.description.length < 4) {
+      newErrors.description = 'Описание должно содержать минимум 4 символа';
+    }
+    
+    if (!selectedCategory) {
+      newErrors.category = 'Выберите категорию';
+    }
+    
+    if (!formData.date.trim()) {
+      newErrors.date = 'Дата обязательна';
+    }
+    
+    if (!formData.sum.trim()) {
+      newErrors.sum = 'Сумма обязательна';
+    } else {
+      const numValue = parseFloat(formData.sum);
+      if (isNaN(numValue) || numValue <= 0) {
+        newErrors.sum = 'Сумма должна быть положительным числом';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
     }
 
-    setIsValid(prev => ({
-      ...prev,
-      [field]: valid
-    }));
+    try {
+      const transactionData = {
+        description: formData.description,
+        sum: parseFloat(formData.sum),
+        category: selectedCategory,
+        date: formData.date
+      };
+
+      await addTransaction(transactionData);
+      
+      setFormData({
+        description: '',
+        date: '',
+        sum: ''
+      });
+      setSelectedCategory(null);
+      setErrors({});
+    } catch (transactionError) {
+      console.error('Error adding transaction:', transactionError);
+    }
+  };
+
+  const handleCategoryClick = (categoryName) => {
+    setSelectedCategory(categoryName);
+    setErrors(prev => ({ ...prev, category: undefined }));
   };
 
   return (
     <>
       <FormTitle>Новый расход</FormTitle>
-      <form>
+      <form onSubmit={handleSubmit}>
         <FieldLabel>Описание</FieldLabel>
         <FormInput
           placeholder="Введите описание"
           value={formData.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          $valid={isValid.description}
+          $hasError={!!errors.description}
         />
+        {errors.description && <ErrorMessage>{errors.description}</ErrorMessage>}
         
         <FieldLabel>Категории</FieldLabel>
         <CategoriesGrid>
@@ -91,28 +169,33 @@ const ExpenseForm = () => {
               onClick={() => handleCategoryClick(cat.name)}
             >
               <span style={{ marginRight: '6px' }}>{cat.icon}</span>
-              {cat.name}
+              {cat.displayName}
             </CategoryButton>
           ))}
         </CategoriesGrid>
+        {errors.category && <ErrorMessage>{errors.category}</ErrorMessage>}
         
         <FieldLabel>Дата</FieldLabel>
         <FormInput
           placeholder="Введите дату"
           value={formData.date}
           onChange={(e) => handleInputChange('date', e.target.value)}
-          $valid={isValid.date}
+          $hasError={!!errors.date}
         />
+        {errors.date && <ErrorMessage>{errors.date}</ErrorMessage>}
         
         <FieldLabel>Сумма</FieldLabel>
         <FormInput
           placeholder="Введите сумму"
-          value={formData.amount}
-          onChange={(e) => handleInputChange('amount', e.target.value)}
-          $valid={isValid.amount}
+          value={formData.sum}
+          onChange={(e) => handleInputChange('sum', e.target.value)}
+          $hasError={!!errors.sum}
         />
+        {errors.sum && <ErrorMessage>{errors.sum}</ErrorMessage>}
         
-        <FormButton type="submit">Добавить новый расход</FormButton>
+        <FormButton type="submit" disabled={loading}>
+          {loading ? 'Добавление...' : 'Добавить новый расход'}
+        </FormButton>
       </form>
     </>
   );
