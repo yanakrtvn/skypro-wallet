@@ -6,31 +6,45 @@ import {
   CalendarTitle,
   WeekdaysHeader,
   Weekday,
-  ScrollContainer,
-  PeriodButton
+  ScrollContainer
 } from './Calendar.styled.js';
 import MonthView from '../MonthView/MonthView.jsx';
 import { WEEKDAYS_SHORT } from '../constants/calendarConstants.js';
 
-const Calendar = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
+const Calendar = ({ onPeriodChange }) => {
+  const [selectedRange, setSelectedRange] = useState({ start: null, end: null });
   const { loadTransactionsByPeriod } = useTransactions();
 
-  const handlePeriodSelect = async (periodString) => {
-    try {
-      const [monthYear, day] = periodString.split('-');
-      const [monthName, year] = monthYear.split(' ');
+  const handleDateSelect = (date) => {
+    if (!selectedRange.start || (selectedRange.start && selectedRange.end)) {
+      setSelectedRange({ start: date, end: null });
+      onPeriodChange({ start: formatDateForAPI(date.date), end: null });
+    } else {
+      const start = selectedRange.start;
+      const end = date;
       
-      const monthIndex = getMonthIndex(monthName);
-      const startDate = new Date(parseInt(year), monthIndex, parseInt(day));
-      const endDate = new Date(parseInt(year), monthIndex, parseInt(day));
+      const sortedStart = start.date < end.date ? start : end;
+      const sortedEnd = start.date < end.date ? end : start;
+      
+      setSelectedRange({ start: sortedStart, end: sortedEnd });
       
       const period = {
-        start: formatDateForAPI(startDate),
-        end: formatDateForAPI(endDate)
+        start: formatDateForAPI(sortedStart.date),
+        end: formatDateForAPI(sortedEnd.date)
       };
       
-      setSelectedPeriod(periodString);
+      onPeriodChange(period);
+      
+      loadTransactionsForPeriod(sortedStart, sortedEnd);
+    }
+  };
+
+  const loadTransactionsForPeriod = async (start, end) => {
+    try {
+      const period = {
+        start: formatDateForAPI(start.date),
+        end: formatDateForAPI(end.date)
+      };
       
       await loadTransactionsByPeriod(period);
     } catch (periodError) {
@@ -45,40 +59,22 @@ const Calendar = () => {
     return `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`;
   };
 
-  const getMonthIndex = (monthName) => {
-    const months = [
-      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-    ];
-    return months.findIndex(month => month === monthName);
+  const isDateInRange = (date) => {
+    if (!selectedRange.start || !selectedRange.end) return false;
+    
+    const checkDate = new Date(date);
+    const startDate = new Date(selectedRange.start.date);
+    const endDate = new Date(selectedRange.end.date);
+    
+    return checkDate >= startDate && checkDate <= endDate;
   };
 
-  const handleTodayClick = () => {
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
-    const period = {
-      start: formatDateForAPI(startOfMonth),
-      end: formatDateForAPI(endOfMonth)
-    };
-    
-    setSelectedPeriod(`Этот месяц`);
-    loadTransactionsByPeriod(period);
-  };
-
-  const handleLastMonthClick = () => {
-    const today = new Date();
-    const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-    
-    const period = {
-      start: formatDateForAPI(startOfLastMonth),
-      end: formatDateForAPI(endOfLastMonth)
-    };
-    
-    setSelectedPeriod(`Прошлый месяц`);
-    loadTransactionsByPeriod(period);
+  const isDateSelected = (date) => {
+    if (!selectedRange.start) return false;
+    if (!selectedRange.end) {
+      return date.toDateString() === selectedRange.start.date.toDateString();
+    }
+    return false;
   };
 
   const currentDate = new Date();
@@ -109,14 +105,6 @@ const Calendar = () => {
     <CalendarWrapper>
       <CalendarHeader>
         <CalendarTitle>Период</CalendarTitle>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <PeriodButton onClick={handleTodayClick}>
-            Этот месяц
-          </PeriodButton>
-          <PeriodButton onClick={handleLastMonthClick}>
-            Прошлый месяц
-          </PeriodButton>
-        </div>
       </CalendarHeader>
 
       <WeekdaysHeader>
@@ -130,22 +118,28 @@ const Calendar = () => {
           month={currentMonth} 
           year={currentYear} 
           title={getMonthName(currentMonth, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
         <MonthView 
           month={currentMonth + 1} 
           year={currentYear} 
           title={getMonthName(currentMonth + 1, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
         <MonthView 
           month={currentMonth + 2} 
           year={currentYear} 
           title={getMonthName(currentMonth + 2, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
       </ScrollContainer>
     </CalendarWrapper>

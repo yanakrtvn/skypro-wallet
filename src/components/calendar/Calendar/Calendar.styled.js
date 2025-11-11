@@ -33,7 +33,7 @@ export const WeekdaysHeader = styled.div`
   top: 0;
   background: white;
   z-index: 10;
-  gap: 8px; /* Уменьшаем расстояние между днями недели */
+  gap: 8px;
 `;
 
 export const Weekday = styled.div`
@@ -82,40 +82,21 @@ export const DayCell = styled.div`
   gap: 10px;
   padding: 10px 15px;
   border-radius: 60px;
-  background: ${({ $isSelected, $isCurrentMonth }) => 
-    $isSelected ? 'rgba(241, 235, 253, 1)' : 
-    $isCurrentMonth ? 'rgba(244, 245, 246, 1)' : '#f5f5f5'};
-  color: ${({ $isSelected }) => 
-    $isSelected ? 'rgba(103, 58, 183, 1)' : 'inherit'};
+  background: ${({ $isSelected, $isInRange, $isCurrentMonth }) => {
+    if ($isSelected || $isInRange) return 'rgba(241, 235, 253, 1)';
+    if ($isCurrentMonth) return 'rgba(244, 245, 246, 1)';
+    return '#f5f5f5';
+  }};
+  color: ${({ $isSelected, $isInRange }) => 
+    ($isSelected || $isInRange) ? 'rgba(103, 58, 183, 1)' : 'inherit'};
   cursor: pointer;
   font-size: 14px;
-  font-weight: ${({ $isSelected }) => $isSelected ? '600' : '400'};
+  font-weight: ${({ $isSelected, $isInRange }) => 
+    ($isSelected || $isInRange) ? '600' : '400'};
   transition: all 0.2s ease;
-  position: relative;
   
   &:hover {
-    background: ${({ $isSelected }) => 
-      $isSelected ? 'rgba(241, 235, 253, 1)' : 'rgba(224, 224, 224, 1)'};
-  }
-`;
-
-export const PeriodButton = styled.button`
-  padding: 8px 16px;
-  background: rgba(103, 58, 183, 1);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(83, 38, 163, 1);
-  }
-  
-  &:active {
-    background: rgba(63, 18, 143, 1);
+    background: ${({ $isSelected, $isInRange }) => 
+      ($isSelected || $isInRange) ? 'rgba(241, 235, 253, 1)' : 'rgba(224, 224, 224, 1)'};
   }
 `;

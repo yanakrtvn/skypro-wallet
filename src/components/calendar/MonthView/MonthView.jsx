@@ -2,7 +2,14 @@ import React from 'react';
 import { MonthContainer, MonthTitle, DaysGrid, EmptyCell } from './MonthView.styled';
 import { DayCell } from '../Calendar/Calendar.styled';
 
-const MonthView = ({ month, year, title, selectedPeriod, onPeriodSelect }) => {
+const MonthView = ({ 
+  month, 
+  year, 
+  title, 
+  onDateSelect, 
+  isDateInRange, 
+  isDateSelected
+}) => {
 
   const getMonthDays = (month, year) => {
     const firstDay = new Date(year, month - 1, 1);
@@ -15,19 +22,24 @@ const MonthView = ({ month, year, title, selectedPeriod, onPeriodSelect }) => {
     return { daysInMonth, startOffset };
   };
 
+  const handleDayClick = (day) => {
+    const date = new Date(year, month - 1, day);
+    onDateSelect({ date, day, month, year });
+  };
+
+  const isDayInRange = (day) => {
+    const date = new Date(year, month - 1, day);
+    return isDateInRange(date);
+  };
+
   const isDaySelected = (day) => {
-    return selectedPeriod === `${title}-${day}`;
+    const date = new Date(year, month - 1, day);
+    return isDateSelected(date);
   };
 
   const { daysInMonth, startOffset } = getMonthDays(month, year);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  
   const emptyCells = Array.from({ length: startOffset }, (_, i) => i);
-
-  const handleDayClick = (day) => {
-    const period = `${title}-${day}`;
-    onPeriodSelect(period);
-  };
 
   return (
     <MonthContainer>
@@ -42,10 +54,10 @@ const MonthView = ({ month, year, title, selectedPeriod, onPeriodSelect }) => {
             key={day} 
             $isCurrentMonth
             $isSelected={isDaySelected(day)}
+            $isInRange={isDayInRange(day)}
             onClick={() => handleDayClick(day)}
           >
             {day}
-            {isDaySelected(day)}
           </DayCell>
         ))}
       </DaysGrid>

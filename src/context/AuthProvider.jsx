@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Загружаем пользователя из localStorage при монтировании
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -32,12 +31,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const clearError = () => {
+    setError("");
+  };
+
   const login = async (credentials) => {
     try {
       setLoading(true);
-      setError("");
+      clearError();
       
       const data = await signIn(credentials);
+      
       const userData = {
         token: data.token,
         ...data.user
@@ -46,7 +50,8 @@ export const AuthProvider = ({ children }) => {
       updateUser(userData);
       return true;
     } catch (err) {
-      setError(err.message);
+      console.error("Login error in provider:", err);
+      setError(err.message || "Произошла ошибка при входе");
       return false;
     } finally {
       setLoading(false);
@@ -54,29 +59,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-  try {
-    setLoading(true);
-    setError("");
-    
-    const data = await signUp(userData);
-    
-    const newUser = {
-      token: data.token,
-      ...data.user
-    };
-    
-    updateUser(newUser);
-    return true;
-  } catch (err) {
-    setError(err.message);
-    return false;
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      clearError();
+      const data = await signUp(userData);
+      
+      const newUser = {
+        token: data.token,
+        ...data.user
+      };
+      
+      updateUser(newUser);
+      return true;
+    } catch (err) {
+      setError(err.message || "Произошла ошибка при регистрации");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const logout = () => {
     updateUser(null);
+    clearError();
     return true;
   };
 
@@ -88,6 +93,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     isAuthenticated: !!user,
+    clearError,
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import Input from "../../Input/Input";
 import Button from "../../common/Button/Button";
@@ -22,38 +22,69 @@ const AuthForm = ({ isSignUp }) => {
     password: ""
   });
   const [errors, setErrors] = useState({});
-  const { login, register, loading, error } = useAuth();
+  const [fieldValidity, setFieldValidity] = useState({
+    name: false,
+    login: false,
+    password: false
+  });
+  const { login, register, loading, error, clearError } = useAuth();
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    clearError();
+    setErrors({});
+    setFieldValidity({
+      name: false,
+      login: false,
+      password: false
+    });
+  }, [isSignUp, clearError]);
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
+    const newFieldValidity = { ...fieldValidity };
     
     switch (name) {
-      case "name":
+      case "name": {
         if (isSignUp && value.length < 2) {
           newErrors.name = "Имя должно содержать минимум 2 символа";
+          newFieldValidity.name = false;
+        } else if (isSignUp && value.length >= 2) {
+          delete newErrors.name;
+          newFieldValidity.name = true;
         } else {
           delete newErrors.name;
+          newFieldValidity.name = true;
         }
         break;
-      case "login":
-        if (!value.includes("@")) {
+      }
+      case "login": {
+        if (!emailRegex.test(value)) {
           newErrors.login = "Введите корректный email";
+          newFieldValidity.login = false;
         } else {
           delete newErrors.login;
+          newFieldValidity.login = true;
         }
         break;
-      case "password":
+      }
+      case "password": {
         if (value.length < 6) {
           newErrors.password = "Пароль должен содержать минимум 6 символов";
+          newFieldValidity.password = false;
         } else {
           delete newErrors.password;
+          newFieldValidity.password = true;
         }
         break;
+      }
       default:
         break;
     }
     
     setErrors(newErrors);
+    setFieldValidity(newFieldValidity);
   };
 
   const handleInputChange = (field, value) => {
@@ -61,63 +92,101 @@ const AuthForm = ({ isSignUp }) => {
       ...prev,
       [field]: value
     }));
-    validateField(field, value);
+    
+    if (value.length > 0) {
+      validateField(field, value);
+    } else {
+      const newFieldValidity = { ...fieldValidity };
+      newFieldValidity[field] = false;
+      setFieldValidity(newFieldValidity);
+      
+      const newErrors = { ...errors };
+      delete newErrors[field];
+      setErrors(newErrors);
+    }
+    
+    if (error) {
+      clearError();
+    }
   };
 
   const validateForm = () => {
-  const newErrors = {};
-  
-  if (isSignUp && !formData.name.trim()) {
-    newErrors.name = "Имя обязательно";
-  } else if (isSignUp && formData.name.trim().length < 2) {
-    newErrors.name = "Имя должно содержать минимум 2 символа";
-  }
-  
-  if (!formData.login.trim()) {
-    newErrors.login = "Email обязателен";
-  } else if (!formData.login.includes("@")) {
-    newErrors.login = "Введите корректный email";
-  }
-  
-  if (!formData.password) {
-    newErrors.password = "Пароль обязателен";
-  } else if (formData.password.length < 6) {
-    newErrors.password = "Пароль должен содержать минимум 6 символов";
-  }
-  
-  console.log("Validation errors:", newErrors);
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    const newErrors = {};
+    const newFieldValidity = {
+      name: false,
+      login: false,
+      password: false
+    };
+    
+    if (isSignUp) {
+      if (!formData.name.trim()) {
+        newErrors.name = "Имя обязательно";
+      } else if (formData.name.trim().length < 2) {
+        newErrors.name = "Имя должно содержать минимум 2 символа";
+      } else {
+        newFieldValidity.name = true;
+      }
+    } else {
+      newFieldValidity.name = true;
+    }
+    
+    if (!formData.login.trim()) {
+      newErrors.login = "Email обязателен";
+    } else {
+      if (!emailRegex.test(formData.login)) {
+        newErrors.login = "Введите корректный email";
+      } else {
+        newFieldValidity.login = true;
+      }
+    }
+    
+    if (!formData.password) {
+      newErrors.password = "Пароль обязателен";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Пароль должен содержать минимум 6 символов";
+    } else {
+      newFieldValidity.password = true;
+    }
+    
+    setErrors(newErrors);
+    setFieldValidity(newFieldValidity);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isFormValid = () => {
+    if (isSignUp) {
+      return fieldValidity.name && fieldValidity.login && fieldValidity.password;
+    } else {
+      return fieldValidity.login && fieldValidity.password;
+    }
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!validateForm()) {
-    return;
-  }
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
     try {
-    const success = isSignUp 
-      ? await register({
-          name: formData.name,
-          login: formData.login,
-          password: formData.password
-        })
-      : await login({
-          login: formData.login,
-          password: formData.password
-        });
+      const success = isSignUp 
+        ? await register({
+            name: formData.name,
+            login: formData.login,
+            password: formData.password
+          })
+        : await login({
+            login: formData.login,
+            password: formData.password
+          });
 
-    if (success) {
-      console.log("Auth successful!");
-    } else {
-      console.log("Auth failed");
+      if (!success) {
+        return;
+      }
+    } catch {
+      // Ошибка обрабатывается в AuthProvider
     }
-  } catch (err) {
-    console.error("Auth error:", err); // Добавьте эту строку
-  }
-};
+  };
 
   return (
     <>
@@ -143,6 +212,7 @@ const AuthForm = ({ isSignUp }) => {
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     $hasError={!!errors.name}
+                    $valid={fieldValidity.name && !errors.name}
                   />
                   {errors.name && <ErrorMessage>{errors.name}</ErrorMessage>}
                 </div>
@@ -156,6 +226,7 @@ const AuthForm = ({ isSignUp }) => {
                   value={formData.login}
                   onChange={(e) => handleInputChange("login", e.target.value)}
                   $hasError={!!errors.login}
+                  $valid={fieldValidity.login && !errors.login}
                 />
                 {errors.login && <ErrorMessage>{errors.login}</ErrorMessage>}
               </div>
@@ -168,12 +239,17 @@ const AuthForm = ({ isSignUp }) => {
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
                   $hasError={!!errors.password}
+                  $valid={fieldValidity.password && !errors.password}
                 />
                 {errors.password && <ErrorMessage>{errors.password}</ErrorMessage>}
               </div>
               
               <AuthButtonContainer>
-                <Button type="submit" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  disabled={!isFormValid() || loading}
+                  $disabled={!isFormValid() || loading}
+                >
                   {loading ? "Загрузка..." : (isSignUp ? "Зарегистрироваться" : "Войти")}
                 </Button>
               </AuthButtonContainer>

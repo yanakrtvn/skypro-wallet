@@ -49,6 +49,7 @@ export const AuthFormLogin = styled.form`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
 
   input {
     margin-bottom: 12px;

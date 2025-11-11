@@ -71,9 +71,58 @@ ChartJS.register(barValuePlugin);
 const Analytics = ({ period }) => {
   const { transactions } = useTransactions();
   const [chartData, setChartData] = useState(null);
+  const [periodTitle, setPeriodTitle] = useState('');
 
   const currentYear = getYear(new Date());
   const categories = ['food', 'transport', 'housing', 'entertainment', 'joy', 'education', 'others'];
+
+  const formatDateDisplay = (dateString) => {
+    if (!dateString) return '';
+    
+    try {
+      if (dateString.match(/^\d{1,2}-\d{1,2}-\d{4}$/)) {
+        const [month, day, year] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('ru-RU', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+      
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('ru-RU', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+      
+      return dateString;
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getPeriodTitle = () => {
+    if (!period || !period.start) {
+      return `Общие расходы ${currentYear}`;
+    }
+
+    const startDate = formatDateDisplay(period.start);
+    
+    if (!period.end || period.start === period.end) {
+      return `Расходы за ${startDate}`;
+    } else {
+      const endDate = formatDateDisplay(period.end);
+      return `Расходы за ${startDate} - ${endDate}`;
+    }
+  };
+
+  useEffect(() => {
+    setPeriodTitle(getPeriodTitle());
+  }, [period]);
 
   useEffect(() => {
     if (transactions.length > 0) {
@@ -115,7 +164,6 @@ const Analytics = ({ period }) => {
 
       setChartData({ data, totalAmount });
     } else {
-
       const emptyData = {
         labels: categories.map(cat => getCategoryName(cat)),
         datasets: [{
@@ -146,10 +194,6 @@ const Analytics = ({ period }) => {
       setChartData({ data: emptyData, totalAmount: 0 });
     }
   }, [transactions]);
-
-  const formattedPeriod = period 
-    ? `Расходы за ${period} ${currentYear}`
-    : `Общие расходы ${currentYear}`;
 
   const options = {
     responsive: true,
@@ -221,7 +265,7 @@ const Analytics = ({ period }) => {
       <AnalyticsHeader>
         <AnalyticsAmount>{chartData.totalAmount.toLocaleString('ru-RU')} ₽</AnalyticsAmount>
         <AnalyticsPeriod>
-          {formattedPeriod}
+          {periodTitle}
         </AnalyticsPeriod>
       </AnalyticsHeader>
 

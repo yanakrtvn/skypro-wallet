@@ -23,12 +23,22 @@ export const FormInput = styled.input`
   height: 39px;
   padding: 12px;
   margin: 0 0 15px 20px;
-  border: 0.5px solid rgba(153, 153, 153, 1);
+  border: 0.5px solid;
   border-radius: 6px;
   background: transparent;
   font-family: 'Montserrat', sans-serif;
   font-size: 12px;
   transition: all 0.3s ease;
+
+  border-color: rgba(153, 153, 153, 1);
+  background: white;
+
+  ${({ $hasError }) =>
+    $hasError &&
+    `
+      background: rgba(255, 245, 245, 1);
+      border-color: rgba(255, 77, 79, 1);
+    `}
 
   ${({ $valid }) =>
     $valid &&
@@ -36,6 +46,31 @@ export const FormInput = styled.input`
       background: rgba(241, 235, 253, 1);
       border-color: rgba(115, 52, 234, 1);
     `}
+
+  &:focus {
+    outline: none;
+    ${({ $hasError, $valid }) => {
+      if ($hasError) {
+        return `
+          background: rgba(255, 245, 245, 1);
+          border-color: rgba(255, 77, 79, 1);
+        `;
+      } else if ($valid) {
+        return `
+          background: rgba(241, 235, 253, 1);
+          border-color: rgba(115, 52, 234, 1);
+        `;
+      } else {
+        return `
+          border-color: rgba(115, 52, 234, 1);
+        `;
+      }
+    }}
+  }
+
+  &::placeholder {
+    color: rgba(153, 153, 153, 0.8);
+  }
 `;
 
 export const CategoriesGrid = styled.div`
@@ -50,7 +85,7 @@ export const CategoryButton = styled.button`
   display: inline-flex;
   align-items: center;
   padding: 8px 15px;
-  border: none;
+  border: 0.5px solid;
   border-radius: 30px;
   background: #F4F5F6;
   color: #333;
@@ -60,8 +95,10 @@ export const CategoryButton = styled.button`
   transition: all 0.3s ease;
   flex: 0 0 auto;
 
+  border-color: rgba(153, 153, 153, 1);
+
   &:hover {
-    background: rgba(241, 235, 253, 1);
+    background: rgba(241, 235, 253, 0.5);
   }
 
   ${({ $selected }) =>
@@ -69,10 +106,17 @@ export const CategoryButton = styled.button`
     `
       background: rgba(241, 235, 253, 1);
       color: rgba(115, 52, 234, 1);
+      border-color: rgba(115, 52, 234, 1);
       
       svg path {
         fill: rgba(115, 52, 234, 1);
       }
+    `}
+
+  ${({ $valid }) =>
+    $valid &&
+    `
+      border-color: rgba(115, 52, 234, 1);
     `}
 `;
 
@@ -81,7 +125,6 @@ export const FormButton = styled.button`
   height: 39px;
   border-radius: 6px;
   padding: 12px;
-  background: rgba(115, 52, 234, 1);
   color: #fff;
   border: none;
   font-family: 'Montserrat', sans-serif;
@@ -90,7 +133,25 @@ export const FormButton = styled.button`
   text-align: center;
   cursor: pointer;
   margin: 15px 0 0 20px;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+
+  background: rgba(115, 52, 234, 1);
+
+  ${({ $disabled }) =>
+    $disabled &&
+    `
+      background: rgba(153, 153, 153, 1);
+      cursor: not-allowed;
+      
+      &:hover {
+        background: rgba(153, 153, 153, 1);
+      }
+    `}
+
+  &:hover {
+    background: ${({ $disabled }) => 
+      $disabled ? 'rgba(153, 153, 153, 1)' : 'rgba(95, 32, 214, 1)'};
+  }
 `;
 
 export const ErrorMessage = styled.div`
