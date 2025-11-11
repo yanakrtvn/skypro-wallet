@@ -26,17 +26,16 @@ const ExpenseForm = () => {
     sum: ''
   });
   const [errors, setErrors] = useState({});
-  const { addTransaction, loading } = useTransactions();
+  const { addTransaction, loadTransactions, loading } = useTransactions();
 
   const categories = [
-  { name: 'food', displayName: 'Еда', icon: <FoodIcon /> },
-  { name: 'transport', displayName: 'Транспорт', icon: <TransportIcon /> },
-  { name: 'housing', displayName: 'Жилье', icon: <HousingIcon /> },
-  { name: 'entertainment', displayName: 'Развлечения', icon: <EntertainmentIcon /> },
-  // { name: 'joy', displayName: 'Развлечения', icon: <EntertainmentIcon /> },
-  { name: 'education', displayName: 'Образование', icon: <EducationIcon /> },
-  { name: 'others', displayName: 'Другое', icon: <OtherIcon /> },
-];
+    { name: 'food', displayName: 'Еда', icon: <FoodIcon /> },
+    { name: 'transport', displayName: 'Транспорт', icon: <TransportIcon /> },
+    { name: 'housing', displayName: 'Жилье', icon: <HousingIcon /> },
+    { name: 'joy', displayName: 'Развлечения', icon: <EntertainmentIcon /> },
+    { name: 'education', displayName: 'Образование', icon: <EducationIcon /> },
+    { name: 'others', displayName: 'Другое', icon: <OtherIcon /> },
+  ];
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -126,8 +125,10 @@ const ExpenseForm = () => {
         category: selectedCategory,
         date: formData.date
       };
-
+      
       await addTransaction(transactionData);
+      
+      await loadTransactions();
       
       setFormData({
         description: '',
@@ -136,8 +137,10 @@ const ExpenseForm = () => {
       });
       setSelectedCategory(null);
       setErrors({});
+      
     } catch (transactionError) {
       console.error('Error adding transaction:', transactionError);
+      setErrors({ submit: transactionError.message });
     }
   };
 
@@ -177,7 +180,7 @@ const ExpenseForm = () => {
         
         <FieldLabel>Дата</FieldLabel>
         <FormInput
-          placeholder="Введите дату"
+          placeholder="Введите дату в формате ДД-ММ-ГГГГ"
           value={formData.date}
           onChange={(e) => handleInputChange('date', e.target.value)}
           $hasError={!!errors.date}
@@ -192,6 +195,8 @@ const ExpenseForm = () => {
           $hasError={!!errors.sum}
         />
         {errors.sum && <ErrorMessage>{errors.sum}</ErrorMessage>}
+        
+        {errors.submit && <ErrorMessage>{errors.submit}</ErrorMessage>}
         
         <FormButton type="submit" disabled={loading}>
           {loading ? 'Добавление...' : 'Добавить новый расход'}

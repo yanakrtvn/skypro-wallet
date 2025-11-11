@@ -100,3 +100,13 @@ export const ErrorMessage = styled.div`
   font-family: 'Montserrat', sans-serif;
   min-height: 16px;
 `;
+
+export const SuccessMessage = styled.div`
+  color: #2e7d32;
+  background-color: #edf7ed;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #2e7d32;
+  font-size: 14px;
+`;

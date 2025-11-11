@@ -48,20 +48,20 @@ export const TransactionsProvider = ({ children }) => {
   };
 
   const addTransaction = async (transactionData) => {
-    if (!user?.token) {
-      throw new Error("Необходима авторизация");
-    }
+  if (!user?.token) {
+    throw new Error("Необходима авторизация");
+  }
 
-    try {
-      setError("");
-      const data = await createTransaction(user.token, transactionData);
-      setTransactions(data);
-      return data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  };
+  try {
+    setError("");
+    await createTransaction(user.token, transactionData);
+    await loadTransactions();
+    return transactions;
+  } catch (err) {
+    setError(err.message);
+    throw err;
+  }
+};
 
   const removeTransaction = async (id) => {
     if (!user?.token) {

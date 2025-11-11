@@ -19,6 +19,7 @@ import {
   LoadingMessage
 } from './Analytics.styled';
 import { getCategoryName } from '../../../utils/categoryUtils';
+import { getYear } from 'date-fns';
 
 ChartJS.register(
   CategoryScale,
@@ -71,6 +72,7 @@ const Analytics = ({ period }) => {
   const { transactions } = useTransactions();
   const [chartData, setChartData] = useState(null);
 
+  const currentYear = getYear(new Date());
   const categories = ['food', 'transport', 'housing', 'entertainment', 'joy', 'education', 'others'];
 
   useEffect(() => {
@@ -112,8 +114,42 @@ const Analytics = ({ period }) => {
       };
 
       setChartData({ data, totalAmount });
+    } else {
+
+      const emptyData = {
+        labels: categories.map(cat => getCategoryName(cat)),
+        datasets: [{
+          label: 'Расходы',
+          data: categories.map(() => 0),
+          backgroundColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderWidth: 1,
+          borderRadius: 12,
+        }],
+      };
+      setChartData({ data: emptyData, totalAmount: 0 });
     }
   }, [transactions]);
+
+  const formattedPeriod = period 
+    ? `Расходы за ${period} ${currentYear}`
+    : `Общие расходы ${currentYear}`;
 
   const options = {
     responsive: true,
@@ -185,7 +221,7 @@ const Analytics = ({ period }) => {
       <AnalyticsHeader>
         <AnalyticsAmount>{chartData.totalAmount.toLocaleString('ru-RU')} ₽</AnalyticsAmount>
         <AnalyticsPeriod>
-          {period ? `Расходы за ${period}` : 'Общие расходы'}
+          {formattedPeriod}
         </AnalyticsPeriod>
       </AnalyticsHeader>
 

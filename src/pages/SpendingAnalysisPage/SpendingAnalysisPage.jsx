@@ -18,7 +18,7 @@ const SpendingAnalysisPage = () => {
           <PageTitle>Анализ расходов</PageTitle>
           <AnalysisContainer>
             <Calendar />
-            <Analytics period="июль 2024" />
+            <Analytics period="" />
           </AnalysisContainer>
         </SpendingAnalysisWrapper>
       </ContentWrapper>
