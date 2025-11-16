@@ -1,16 +1,61 @@
-# React + Vite
+SSkyPro Wallet - Приложение для учета расходов
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Описание проекта
 
-Currently, two official plugins are available:
+    SkyPro Wallet -  веб-приложение для управления личными финансами, которое позволяет пользователям отслеживать свои расходы по категориям, анализировать финансовые привычки и контролировать бюджет.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Установка приложения:
+   -Установить  (VS Code, Git Hub);
+   -Скопировать проект с использованием команды git clone;
+   -Установить все зависимости с использованием команды: npm install;
+   -Запустить приложение, в режиме разработки запустить команду npm run dev. 
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Ключевые функции
 
-## Expanding the ESLint configuration
+    Система аутентификации
+       -Регистрация новых пользователей
+       -Авторизация с валидацией данных
+       -Защищенные маршруты
+        -охранение сессии
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+    Управление транзакциями
+       -Добавление новых расходов с категориями
+       -Просмотр истории транзакций
+       -Удаление транзакций
+       -Фильтрация по дате и периоду
+
+    Аналитика расходов
+       -Визуализация расходов по категориям
+       -Выбор периода через календарь
+       -Статистика за выбранный период
+       -Интерактивный интерфейс анализа
+
+    Календарь и периоды
+       -Выбор диапазона дат
+       -Просмотр трех месяцев одновременно
+       -Визуальное выделение выбранного периода
+
+Используемые библиотеки:
+       -React - основной фреймворк
+       -React Router - маршрутизация
+       -Styled Components - стилизация
+       -Context API - управление состоянием
+       -axios (для работы с АПИ)
+       -Chart.js (для работы с графиками)
+
+
+Структура проекта
+
+        src/
+        ├── components/         # React компоненты
+        │   ├── auth/           # Компоненты авторизации
+        │   ├── calendar/       # Календарь и выбор дат
+        │   ├── expenses/       # Компоненты расходов
+        │   └── common/         # Общие компоненты
+        ├── context/            # React Context провайдеры
+        ├── hooks/              # Кастомные React хуки
+        ├── pages/              # Страницы приложения
+        ├── api/                # API функции
+        ├── utils/              # Вспомогательные функции
+        └── styles/             # Глобальные стили
