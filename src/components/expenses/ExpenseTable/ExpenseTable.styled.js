@@ -50,10 +50,6 @@ export const ActionButton = styled.button`
   border: none;
   font-size: 16px;
   transition: color 0.3s ease;
-
-  /* &:hover {
-    color: #1FA46C;
-  } */
 `;
 
 export const LoadingMessage = styled.div`

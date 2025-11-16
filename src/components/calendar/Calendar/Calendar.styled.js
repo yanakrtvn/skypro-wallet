@@ -9,6 +9,17 @@ export const CalendarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 32px;
+  
+  @media (max-width: 1200px) {
+    margin-right: 0;
+    max-width: 600px;
+    order: 2;
+  }
+  
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 400px;
+  }
 `;
 
 export const CalendarHeader = styled.div`

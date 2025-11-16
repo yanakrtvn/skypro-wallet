@@ -9,6 +9,8 @@ export const ContentWrapper = styled.div`
 
 export const SpendingAnalysisWrapper = styled.div`
   padding: 10px 20px;
+  width: 100%;
+  max-width: 1200px;
 `;
 
 export const PageTitle = styled.h2`
@@ -17,6 +19,15 @@ export const PageTitle = styled.h2`
   font-weight: 700;
   font-size: 32px;
   color: #000000;
+  
+  @media (max-width: 1200px) {
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 24px;
+    padding-top: 20px;
+  }
 `;
 
 export const AnalysisContainer = styled.div`
@@ -24,4 +35,10 @@ export const AnalysisContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 20px;
+  
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
 `;

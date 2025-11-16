@@ -22,17 +22,17 @@ const ExpenseForm = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState({
     description: '',
-    date: '',
+    date: '', // Убрали текущую дату по умолчанию
     sum: ''
   });
   const [errors, setErrors] = useState({});
   const [fieldValidity, setFieldValidity] = useState({
     description: false,
-    date: false,
+    date: false, // Теперь дата не валидна по умолчанию
     sum: false,
     category: false
   });
-  const { addTransaction, loadTransactions, loading } = useTransactions();
+  const { addTransaction, loading } = useTransactions();
 
   const categories = [
     { name: 'food', displayName: 'Еда', icon: <FoodIcon /> },
@@ -44,42 +44,7 @@ const ExpenseForm = () => {
   ];
 
   const formatDateForAPI = (dateString) => {
-    if (!dateString) return '';
-    
-    if (dateString.match(/^\d{2}-\d{2}-\d{4}$/)) {
-      return dateString;
-    }
-    
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      const [year, month, day] = dateString.split('-');
-      return `${day}-${month}-${year}`;
-    }
-    
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return dateString; 
-    }
-    
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    
-    return `${day}-${month}-${year}`;
-  };
-
-  const isValidDate = (dateString) => {
-    if (!dateString) return false;
-    
-    if (dateString.match(/^\d{2}-\d{2}-\d{4}$/)) {
-      const [day, month, year] = dateString.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.getDate() === day && 
-             date.getMonth() === month - 1 && 
-             date.getFullYear() === year;
-    }
-    
-    const date = new Date(dateString);
-    return !isNaN(date.getTime());
+    return dateString; 
   };
 
   const validateField = (name, value) => {
@@ -111,9 +76,6 @@ const ExpenseForm = () => {
       case 'date': {
         if (!value.trim()) {
           newErrors.date = 'Дата обязательна';
-          newFieldValidity.date = false;
-        } else if (!isValidDate(value)) {
-          newErrors.date = 'Введите корректную дату в формате ДД-ММ-ГГГГ';
           newFieldValidity.date = false;
         } else {
           delete newErrors.date;
@@ -173,8 +135,6 @@ const ExpenseForm = () => {
     
     if (!formData.date.trim()) {
       newErrors.date = 'Дата обязательна';
-    } else if (!isValidDate(formData.date)) {
-      newErrors.date = 'Введите корректную дату в формате ДД-ММ-ГГГГ';
     } else {
       newFieldValidity.date = true;
     }
@@ -217,19 +177,20 @@ const ExpenseForm = () => {
         date: formatDateForAPI(formData.date)
       };
       
+      console.log('Отправляемые данные:', transactionData);
+      
       await addTransaction(transactionData);
-      await loadTransactions();
       
       setFormData({
         description: '',
-        date: '',
+        date: '', // Сбрасываем на пустую строку
         sum: ''
       });
       setSelectedCategory(null);
       setErrors({});
       setFieldValidity({
         description: false,
-        date: false,
+        date: false, // Сбрасываем валидность даты
         sum: false,
         category: false
       });
@@ -283,6 +244,7 @@ const ExpenseForm = () => {
         
         <FieldLabel>Дата</FieldLabel>
         <FormInput
+          type="date"
           placeholder="Введите дату"
           value={formData.date}
           onChange={(e) => handleInputChange('date', e.target.value)}
@@ -293,6 +255,9 @@ const ExpenseForm = () => {
         
         <FieldLabel>Сумма</FieldLabel>
         <FormInput
+          type="number"
+          step="0.01"
+          min="0"
           placeholder="Введите сумму"
           value={formData.sum}
           onChange={(e) => handleInputChange('sum', e.target.value)}

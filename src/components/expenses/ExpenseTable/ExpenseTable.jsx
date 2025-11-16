@@ -14,7 +14,6 @@ import {
 } from '../../common/icons/Icons';
 import { getCategoryName, getCategoryIcon } from '../../../utils/categoryUtils';
 
-
 const ExpenseTable = () => {
   const { transactions, loading, error, deleteTransaction } = useTransactions();
 
@@ -29,7 +28,31 @@ const ExpenseTable = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ru-RU');
+    if (!dateString) return 'Не указана';
+    
+    try {
+      return new Date(dateString).toLocaleDateString('ru-RU');
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getSafeSum = (transaction) => {
+    const sum = transaction?.sum;
+    if (sum === undefined || sum === null) return 0;
+    return typeof sum === 'number' ? sum : parseFloat(sum) || 0;
+  };
+
+  const getSafeDescription = (transaction) => {
+    return transaction?.description || 'Без описания';
+  };
+
+  const getSafeCategory = (transaction) => {
+    return transaction?.category || 'others';
+  };
+
+  const getSafeId = (transaction, index) => {
+    return transaction?._id || `temp-${index}`;
   };
 
   const safeTransactions = Array.isArray(transactions) ? transactions : [];
@@ -58,28 +81,35 @@ const ExpenseTable = () => {
         </tr>
       </thead>
       <tbody>
-        {safeTransactions.map(transaction => (
-          <TableRow key={transaction._id}>
-            <TableCell>
-              {transaction.description}
-            </TableCell>
-            <TableCell>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {getCategoryIcon(transaction.category)}
-                {getCategoryName(transaction.category)}
-              </div>
-            </TableCell>
-            <TableCell>
-              {formatDate(transaction.date)}
-            </TableCell>
-            <TableCell>{`${transaction.sum.toLocaleString('ru-RU')} Р`}</TableCell>
-            <TableCell>
-              <ActionButton onClick={() => handleDelete(transaction._id)}>
-                <DeleteIcon />
-              </ActionButton>
-            </TableCell>
-          </TableRow>
-        ))}
+        {safeTransactions.map((transaction, index) => {
+          const safeId = getSafeId(transaction, index);
+          const safeSum = getSafeSum(transaction);
+          const safeDescription = getSafeDescription(transaction);
+          const safeCategory = getSafeCategory(transaction);
+          
+          return (
+            <TableRow key={safeId}>
+              <TableCell>
+                {safeDescription}
+              </TableCell>
+              <TableCell>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {getCategoryIcon(safeCategory)}
+                  {getCategoryName(safeCategory)}
+                </div>
+              </TableCell>
+              <TableCell>
+                {formatDate(transaction.date)}
+              </TableCell>
+              <TableCell>{`${safeSum.toLocaleString('ru-RU')} Р`}</TableCell>
+              <TableCell>
+                <ActionButton onClick={() => handleDelete(safeId)}>
+                  <DeleteIcon />
+                </ActionButton>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </tbody>
     </Table>
   );
