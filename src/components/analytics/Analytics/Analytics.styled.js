@@ -7,7 +7,7 @@ export const AnalyticsContainer = styled.div`
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background-color: white;
-  border: 1px solid #e0e0e0; /* Убираем красную рамку */
+  border: 1px solid #e0e0e0;
 `;
 
 export const AnalyticsHeader = styled.div`
@@ -34,4 +34,14 @@ export const ChartContainer = styled.div`
   position: relative;
   background-color: white;
   padding: 12px;
+`;
+
+export const LoadingMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  color: #666;
 `;

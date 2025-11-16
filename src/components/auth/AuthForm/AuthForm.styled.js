@@ -49,6 +49,7 @@ export const AuthFormLogin = styled.form`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
 
   input {
     margin-bottom: 12px;
@@ -82,4 +83,10 @@ export const AuthFormGroup = styled.div`
   a {
     text-decoration: underline;
   }
+`;
+export const ErrorMessage = styled.div`
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+  font-family: 'Montserrat', sans-serif;
 `;

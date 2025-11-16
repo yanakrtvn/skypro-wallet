@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTransactions } from '../../../hooks/useTransactions';
 import {
   CalendarWrapper,
   CalendarHeader,
@@ -10,11 +11,70 @@ import {
 import MonthView from '../MonthView/MonthView.jsx';
 import { WEEKDAYS_SHORT } from '../constants/calendarConstants.js';
 
-const Calendar = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
+const Calendar = ({ onPeriodChange }) => {
+  const [selectedRange, setSelectedRange] = useState({ start: null, end: null });
+  const { loadTransactionsByPeriod } = useTransactions();
 
-  const handlePeriodSelect = (period) => {
-    setSelectedPeriod(period);
+  const handleDateSelect = (date) => {
+    if (!selectedRange.start || (selectedRange.start && selectedRange.end)) {
+      setSelectedRange({ start: date, end: null });
+      onPeriodChange({ start: formatDateForAPI(date.date), end: null });
+    } else {
+      const start = selectedRange.start;
+      const end = date;
+      
+      const sortedStart = start.date < end.date ? start : end;
+      const sortedEnd = start.date < end.date ? end : start;
+      
+      setSelectedRange({ start: sortedStart, end: sortedEnd });
+      
+      const period = {
+        start: formatDateForAPI(sortedStart.date),
+        end: formatDateForAPI(sortedEnd.date)
+      };
+      
+      onPeriodChange(period);
+      
+      loadTransactionsForPeriod(sortedStart, sortedEnd);
+    }
+  };
+
+  const loadTransactionsForPeriod = async (start, end) => {
+    try {
+      const period = {
+        start: formatDateForAPI(start.date),
+        end: formatDateForAPI(end.date)
+      };
+      
+      await loadTransactionsByPeriod(period);
+    } catch (periodError) {
+      console.error('Error loading period transactions:', periodError);
+    }
+  };
+
+  const formatDateForAPI = (date) => {
+    if (!(date instanceof Date) || isNaN(date)) {
+      return '';
+    }
+    return `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`;
+  };
+
+  const isDateInRange = (date) => {
+    if (!selectedRange.start || !selectedRange.end) return false;
+    
+    const checkDate = new Date(date);
+    const startDate = new Date(selectedRange.start.date);
+    const endDate = new Date(selectedRange.end.date);
+    
+    return checkDate >= startDate && checkDate <= endDate;
+  };
+
+  const isDateSelected = (date) => {
+    if (!selectedRange.start) return false;
+    if (!selectedRange.end) {
+      return date.toDateString() === selectedRange.start.date.toDateString();
+    }
+    return false;
   };
 
   const currentDate = new Date();
@@ -58,22 +118,28 @@ const Calendar = () => {
           month={currentMonth} 
           year={currentYear} 
           title={getMonthName(currentMonth, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
         <MonthView 
           month={currentMonth + 1} 
           year={currentYear} 
           title={getMonthName(currentMonth + 1, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
         <MonthView 
           month={currentMonth + 2} 
           year={currentYear} 
           title={getMonthName(currentMonth + 2, currentYear)}
-          selectedPeriod={selectedPeriod}
-          onPeriodSelect={handlePeriodSelect}
+          selectedRange={selectedRange}
+          onDateSelect={handleDateSelect}
+          isDateInRange={isDateInRange}
+          isDateSelected={isDateSelected}
         />
       </ScrollContainer>
     </CalendarWrapper>

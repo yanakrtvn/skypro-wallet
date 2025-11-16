@@ -26,7 +26,6 @@ const MainPage = () => {
               <TableSection>
                 <TableControlsWrapper>
                   <TableTitle>Таблица расходов</TableTitle>
-                  {/* <FilterControls /> */}
                 </TableControlsWrapper>
                 <ExpenseTable />
               </TableSection>

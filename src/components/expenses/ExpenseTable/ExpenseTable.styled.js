@@ -55,3 +55,23 @@ export const ActionButton = styled.button`
     color: #1FA46C;
   } */
 `;
+
+export const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+  font-family: 'Montserrat', sans-serif;
+`;
+
+export const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #ff4d4f;
+  font-family: 'Montserrat', sans-serif;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 8px;
+  margin: 20px 0;
+`;

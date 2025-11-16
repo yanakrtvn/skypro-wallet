@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  FoodIcon, 
-  TransportIcon, 
-  HousingIcon, 
-  EntertainmentIcon, 
-  EducationIcon, 
-  OtherIcon 
+import {
+  FoodIcon,
+  TransportIcon,
+  HousingIcon,
+  EntertainmentIcon,
+  EducationIcon,
+  OtherIcon
 } from '../components/common/icons/Icons';
 
 export const getCategoryIcon = (category) => {
@@ -17,6 +17,7 @@ export const getCategoryIcon = (category) => {
     case 'housing':
       return <HousingIcon />;
     case 'entertainment':
+    case 'joy':
       return <EntertainmentIcon />;
     case 'education':
       return <EducationIcon />;
@@ -34,6 +35,7 @@ export const getCategoryName = (category) => {
     case 'housing':
       return 'Жилье';
     case 'entertainment':
+    case 'joy':
       return 'Развлечения';
     case 'education':
       return 'Образование';
@@ -44,9 +46,10 @@ export const getCategoryName = (category) => {
 
 export const CATEGORIES = [
   { id: 'food', name: 'Еда' },
-  { id: 'transport', name: 'Транспорт'},
+  { id: 'transport', name: 'Транспорт' },
   { id: 'housing', name: 'Жилье' },
   { id: 'entertainment', name: 'Развлечения' },
+  { id: 'joy', name: 'Развлечения' },
   { id: 'education', name: 'Образование' },
-  { id: 'other', name: 'Другое' },
+  { id: 'others', name: 'Другое' },
 ];

@@ -5,6 +5,8 @@ const Input = ({
   type = "text",
   placeholder = "",
   value = "",
+  $hasError = false,
+  $valid = false,
   ...props
 }) => {
   return (
@@ -12,6 +14,8 @@ const Input = ({
       type={type}
       placeholder={placeholder}
       value={value}
+      $hasError={$hasError}
+      $valid={$valid}
       {...props}
     />
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,13 +9,17 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useTransactions } from '../../../hooks/useTransactions';
 import {
   AnalyticsContainer,
   AnalyticsHeader,
   AnalyticsAmount,
   AnalyticsPeriod,
-  ChartContainer
+  ChartContainer,
+  LoadingMessage
 } from './Analytics.styled';
+import { getCategoryName } from '../../../utils/categoryUtils';
+import { getYear } from 'date-fns';
 
 ChartJS.register(
   CategoryScale,
@@ -39,11 +43,10 @@ const barValuePlugin = {
         const value = dataset.data[index];
         const x = bar.x;
         const y = bar.y;
-        const width = bar.width;
         
         if (value === 0) {
           ctx.fillStyle = dataset.backgroundColor[index];
-          ctx.fillRect(x - width / 2, bar.base - 4, width, 4);
+          ctx.fillRect(x - bar.width / 2, bar.base - 4, bar.width, 4);
           ctx.fillStyle = 'rgba(0, 0, 0, 1)';
           ctx.font = '600 16px Montserrat';
           ctx.textAlign = 'center';
@@ -66,34 +69,131 @@ const barValuePlugin = {
 ChartJS.register(barValuePlugin);
 
 const Analytics = ({ period }) => {
-  const expenses = [3590, 1835, 0, 1250, 600, 2306];
-  const totalAmount = expenses.reduce((sum, amount) => sum + amount, 0);
+  const { transactions } = useTransactions();
+  const [chartData, setChartData] = useState(null);
+  const [periodTitle, setPeriodTitle] = useState('');
 
-  const data = {
-    labels: ['Еда', 'Транспорт', 'Жилье', 'Развлечения', 'Образование', 'Другое'],
-    datasets: [{
-      label: 'Расходы',
-      data: expenses,
-      backgroundColor: [
-        'rgb(217, 182, 255)',
-        'rgb(255, 181, 61)',
-        'rgb(110, 228, 254)',
-        'rgb(176, 174, 255)',
-        'rgb(188, 236, 48)',
-        'rgb(255, 185, 184)',
-      ],
-      borderColor: [
-        'rgb(217, 182, 255)',
-        'rgb(255, 181, 61)',
-        'rgb(110, 228, 254)',
-        'rgb(176, 174, 255)',
-        'rgb(188, 236, 48)',
-        'rgb(255, 185, 184)',
-      ],
-      borderWidth: 1,
-      borderRadius: 12,
-    }],
+  const currentYear = getYear(new Date());
+  const categories = ['food', 'transport', 'housing', 'entertainment', 'joy', 'education', 'others'];
+
+  const formatDateDisplay = (dateString) => {
+    if (!dateString) return '';
+    
+    try {
+      if (dateString.match(/^\d{1,2}-\d{1,2}-\d{4}$/)) {
+        const [month, day, year] = dateString.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('ru-RU', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+      
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('ru-RU', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+      
+      return dateString;
+    } catch {
+      return dateString;
+    }
   };
+
+  const getPeriodTitle = () => {
+    if (!period || !period.start) {
+      return `Общие расходы ${currentYear}`;
+    }
+
+    const startDate = formatDateDisplay(period.start);
+    
+    if (!period.end || period.start === period.end) {
+      return `Расходы за ${startDate}`;
+    } else {
+      const endDate = formatDateDisplay(period.end);
+      return `Расходы за ${startDate} - ${endDate}`;
+    }
+  };
+
+  useEffect(() => {
+    setPeriodTitle(getPeriodTitle());
+  }, [period]);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      const expensesByCategory = categories.map(category => {
+        return transactions
+          .filter(transaction => transaction.category === category)
+          .reduce((sum, transaction) => sum + transaction.sum, 0);
+      });
+
+      const totalAmount = expensesByCategory.reduce((sum, amount) => sum + amount, 0);
+
+      const data = {
+        labels: categories.map(cat => getCategoryName(cat)),
+        datasets: [{
+          label: 'Расходы',
+          data: expensesByCategory,
+          backgroundColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderWidth: 1,
+          borderRadius: 12,
+        }],
+      };
+
+      setChartData({ data, totalAmount });
+    } else {
+      const emptyData = {
+        labels: categories.map(cat => getCategoryName(cat)),
+        datasets: [{
+          label: 'Расходы',
+          data: categories.map(() => 0),
+          backgroundColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderColor: [
+            'rgb(217, 182, 255)',
+            'rgb(255, 181, 61)',
+            'rgb(110, 228, 254)',
+            'rgb(176, 174, 255)',
+            'rgb(255, 185, 184)',
+            'rgb(188, 236, 48)',
+            'rgb(180, 180, 180)',
+          ],
+          borderWidth: 1,
+          borderRadius: 12,
+        }],
+      };
+      setChartData({ data: emptyData, totalAmount: 0 });
+    }
+  }, [transactions]);
 
   const options = {
     responsive: true,
@@ -114,8 +214,6 @@ const Analytics = ({ period }) => {
           display: false,
         },
         min: 0,
-        suggestedMin: 0,
-        suggestedMax: Math.max(...expenses) * 1.1,
       },
       x: {
         grid: {
@@ -154,18 +252,26 @@ const Analytics = ({ period }) => {
     },
   };
 
+  if (!chartData) {
+    return (
+      <AnalyticsContainer>
+        <LoadingMessage>Загрузка аналитики...</LoadingMessage>
+      </AnalyticsContainer>
+    );
+  }
+
   return (
     <AnalyticsContainer>
       <AnalyticsHeader>
-        <AnalyticsAmount>{totalAmount.toLocaleString('ru-RU')} ₽</AnalyticsAmount>
+        <AnalyticsAmount>{chartData.totalAmount.toLocaleString('ru-RU')} ₽</AnalyticsAmount>
         <AnalyticsPeriod>
-          {period ? `Расходы за ${period}` : 'Выберите период в календаре'}
+          {periodTitle}
         </AnalyticsPeriod>
       </AnalyticsHeader>
 
       <ChartContainer>
         <Bar 
-          data={data} 
+          data={chartData.data} 
           options={options}
         />
       </ChartContainer>
