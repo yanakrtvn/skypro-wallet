@@ -10,23 +10,33 @@ export const TransactionsProvider = ({ children }) => {
   const { user } = useAuth();
 
   const loadTransactions = async (filters = {}) => {
-    if (!user?.token) {
-      setError("Необходима авторизация");
-      return;
-    }
+  if (!user?.token) {
+    setError("Необходима авторизация");
+    return;
+  }
 
-    try {
-      setLoading(true);
-      setError("");
-      
-      const data = await getTransactions(user.token, filters);
-      setTransactions(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    setError("");
+    
+    const data = await getTransactions(user.token, filters);
+    
+    const safeTransactions = Array.isArray(data) ? data.map(transaction => ({
+      _id: transaction._id || `temp-${Date.now()}-${Math.random()}`,
+      description: transaction.description || '',
+      category: transaction.category || 'others',
+      date: transaction.date || new Date().toISOString(),
+      sum: transaction.sum || 0
+    })) : [];
+    
+    setTransactions(safeTransactions);
+  } catch (err) {
+    setError(err.message);
+    setTransactions([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadTransactionsByPeriod = async (period) => {
     if (!user?.token) {
@@ -54,9 +64,11 @@ export const TransactionsProvider = ({ children }) => {
 
   try {
     setError("");
-    await createTransaction(user.token, transactionData);
-    await loadTransactions();
-    return transactions;
+    const newTransaction = await createTransaction(user.token, transactionData);
+    
+    setTransactions(prev => [newTransaction, ...prev]);
+    
+    return newTransaction;
   } catch (err) {
     setError(err.message);
     throw err;
@@ -64,20 +76,27 @@ export const TransactionsProvider = ({ children }) => {
 };
 
   const removeTransaction = async (id) => {
-    if (!user?.token) {
-      throw new Error("Необходима авторизация");
-    }
+  if (!user?.token) {
+    throw new Error("Необходима авторизация");
+  }
 
-    try {
-      setError("");
-      const data = await deleteTransaction(user.token, id);
+  try {
+    setError("");
+    setTransactions(prev => prev.filter(transaction => transaction._id !== id));
+    
+    const data = await deleteTransaction(user.token, id);
+    
+    if (Array.isArray(data)) {
       setTransactions(data);
-      return data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
     }
-  };
+    
+    return data;
+  } catch (err) {
+    await loadTransactions();
+    setError(err.message);
+    throw err;
+  }
+};
 
   useEffect(() => {
     if (user?.token) {
